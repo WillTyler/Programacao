@@ -1,0 +1,175 @@
+package database;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement; 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Scanner;
+
+public class Database {
+
+    public static Connection conexao;
+    public static PreparedStatement ps;
+    public static ResultSet rs;
+    public static ResultSet rst;
+    public static ResultSet r;
+    public static String sql;
+
+    public static void main(String[] args) throws SQLException {
+
+        int id;
+        String nome;
+        String cpf;
+        String dataNascimento;
+        String sexo;
+        String celular;
+        String telefoneFixo;
+        String email;
+        String endereco;
+        String cep;
+        String cidade;
+        
+	
+        Scanner in = new Scanner(System.in);
+
+        System.out.println("Digite o Id");
+        id = Integer.parseInt(in.nextLine());
+
+        System.out.println("Digite o Nome");
+        nome = in.nextLine();
+
+        System.out.println("Digite o Cpf");
+        cpf = in.nextLine();
+        
+        System.out.println("Digite a data de nascimento");
+        dataNascimento = in.nextLine();
+
+        System.out.println("Digite o sexo");
+        sexo = in.nextLine();
+       
+        System.out.println("Digite o Id");
+        id = Integer.parseInt(in.nextLine());
+        
+        System.out.println("Digite o celular");
+        celular = in.nextLine();
+        
+        System.out.println("Digite o telefone fixo");
+        telefoneFixo = in.nextLine();
+        
+        System.out.println("Digite o email");
+        email = in.nextLine();
+        
+        System.out.println("Digite o Id");
+        id = Integer.parseInt(in.nextLine());
+        
+        System.out.println("Digite o endereco");
+        endereco = in.nextLine();
+
+        System.out.println("Digite o cep");
+        cep = in.nextLine();
+
+        System.out.println("Digite a cidade");
+        cidade = in.nextLine();
+        
+        String usuario = "root";
+        String senha = "";
+        conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/tabela", usuario, senha);
+
+        sql = "INSERT INTO cadastro (id, nome, cpf, dataNascimento, sexo) VALUES (?, ?, ?, ?, ?)";
+        ps = conexao.prepareStatement(sql);
+
+	ps.setInt(1, id);
+        ps.setString(2, nome);
+        ps.setString(3, cpf);
+        ps.setString(4, dataNascimento);
+	ps.setString(5, sexo);
+
+        ps.execute();
+        ps.close();
+        conexao.close();	
+
+	conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/tabela", usuario, senha);
+
+        sql = "INSERT INTO contato (id, celular, telefoneFixo, email) VALUES (?, ?, ?, ?)";
+        ps = conexao.prepareStatement(sql);
+        
+	ps.setInt(1, id);
+        ps.setString(2, celular);
+        ps.setString(3, telefoneFixo);
+        ps.setString(4, email);
+
+        ps.execute();
+        ps.close();
+        conexao.close();
+        
+        conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/tabela", usuario, senha);
+
+        sql = "INSERT INTO endereco (id, endereco, cep, cidade) VALUES (?, ?, ?, ?)";
+        ps = conexao.prepareStatement(sql);
+
+        ps.setInt(1, id);
+        ps.setString(2, endereco);
+        ps.setString(3, cep);
+        ps.setString(4, cidade);
+
+        ps.execute();
+        ps.close();
+        conexao.close();
+        
+        System.out.println("\n\nListando os Registros Gravados");
+        
+        // Leitura do Banco de Dados
+        conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/tabela", usuario, senha);
+        //sql = "SELECT * FROM cadastro ORDER BY nome";
+        //sql = "SELECT * FROM cadastro INNER JOIN contato ON cadastro.id = contato.id";
+        sql   = "select * from cadastro inner join contato ON contato.id = cadastro.id inner join endereco ON endereco.id = cadastro.id"; 
+        ps = conexao.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery();
+        
+       
+        while (rs.next()) {
+            System.out.println("Id..:" + rs.getInt("id"));
+            System.out.println("Nome:" + rs.getString("nome"));
+            System.out.println("Cpf.:" + rs.getString("cpf"));
+	    System.out.println("dataNascimento..:" + rs.getString("dataNascimento"));
+            System.out.println("sexo:" + rs.getString("sexo"));
+            System.out.println("");	
+        }
+        conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/tabela", usuario, senha);
+        //sql = "SELECT id,nome,cpf,endereco,cep,cidade,telefone,telefone_fixo,email FROM cadastro, contato WHERE contato.telefone = cadastro.id";
+        //sql = "SELECT cadastro.id,cadastro.nome,cadastro.cpf,cadastro.endereco,cadastro.cep,cadastro.cidade,contato.telefone,contato.telefone_fixo,contato.email FROM contato Inner Join cadastro";
+        //sql = "SELECT * FROM contato ORDER BY telefone";
+        //sql = "SELECT * FROM contato INNER JOIN cadastro ON contato.id = cadastro.id";
+        sql   = "select * from contato inner join cadastro ON cadastro.id = contato.id inner join endereco ON endereco.id = contato.id";
+        ps = conexao.prepareStatement(sql);
+        ResultSet rst = ps.executeQuery();
+         
+        while (rst.next()){
+            System.out.println("id..:" + rst.getInt("id"));
+            System.out.println("telefone..:" + rst.getString("telefone"));
+            System.out.println("telefoneFixo:" + rst.getString("telefoneFixo"));
+            System.out.println("email.:" + rst.getString("email"));
+            System.out.println("");	
+             
+         }
+        conexao = DriverManager.getConnection("jdbc:mysql://localhost:3306/tabela", usuario, senha);
+        //sql = "SELECT * FROM contato ORDER BY telefone";
+         //sql = "SELECT * FROM endereco INNER JOIN cadastro ON contato.id = cadastro.id";
+         sql   = "select * from endereco inner join cadastro ON cadastro.id = endereco.id inner join contato ON contato.id = endereco.id";
+         //sql   = "update endereco set cep = 06018120 where id = 1";
+         ps = conexao.prepareStatement(sql);
+        ResultSet r = ps.executeQuery();
+        
+        while (r.next()){
+            System.out.println("id..:" + r.getInt("id"));
+            System.out.println("endereco..:" + r.getString("endereco"));
+            System.out.println("cep:" + r.getString("cep"));
+            System.out.println("cidade.:" + r.getString("cidade"));
+            System.out.println("");	
+             
+         }
+        
+    }
+
+} 
